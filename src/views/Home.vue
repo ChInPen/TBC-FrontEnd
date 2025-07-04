@@ -17,14 +17,21 @@ onMounted(() => {
     })
     io.observe(titleRef.value)
 })
+
+const selectedId = ref<number|null>(null)
+function handleSelect(id:number){
+  selectedId.value = id   // 更新唯一真相
+  console.log(`收到資料了${id}`);
+  
+}
 </script>
 
 <template>
     <MyHeader />
     <main>
         <Product />
-        <Fee />
-        <Select />
+        <Fee :selected-id="selectedId" @select="handleSelect" />
+        <Select :selected-id="selectedId" @select="handleSelect" />
         <Terms />
     </main>
     <MyFooter />
@@ -54,6 +61,7 @@ onMounted(() => {
         transform: translateY(-120%);
         opacity: 0;
     }
+
     to {
         transform: translateY(0);
         opacity: 1;

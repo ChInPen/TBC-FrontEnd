@@ -1,25 +1,11 @@
-<template>
-    <div class="main">
-        <article v-for="plan in plans" :key="plan.id" class="card" :class="{ highlight: plan.id === SelectedId }"
-            v-on:click="slelctPlan(plan.id)">
-            <div class="card-header">
-                <h2 class="title">{{ plan.name }}</h2>
-                <p>${{ plan.price }}/月</p>
-            </div>
-            <ul class="meta">
-                <li><span>裝機費</span>{{ plan.setup }}</li>
-                <li><span>保證金</span>{{ plan.deposit }}</li>
-                <li><span>繳　別</span>{{ plan.payCycle }}</li>
-                <li><span>合　約</span>{{ plan.contract }}</li>
-            </ul>
-            <div class="note">{{ plan.note }}</div>
-        </article>
-        <button class="btn" @click="submit">預約安裝</button>
-    </div>
-</template>
-
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, defineProps, defineEmits } from 'vue'
+import { useInView } from '../../composables/useInView'
+const props = defineProps<{ selectedId: number | null }>()
+console.log(`從fee收到的資料${props}`);
+
+const emit = defineEmits<{ (e: 'select', id: number): void }>()
+const { el } = useInView()
 const plans = [
     {
         id: 1,
@@ -99,15 +85,51 @@ function submit() {
     console.log(selectedPlan.value);
     alert(`你選擇的方案是:${selectedPlan.value.name}`)
 }
+function cardClick(id: number) {
+    emit('select', id) 
+}
+function handleClick(id: number) {
+    slelctPlan(id)
+    cardClick(id)
+}
 </script>
 
+<template>
+    <div class="main">
+        <h1 ref="el">立即預約</h1>
+        <div class="cardOut">
+            <article v-for="plan in plans" :key="plan.id" class="card" :class="{ highlight: plan.id === SelectedId }"
+                v-on:click="handleClick(plan.id)">
+                <div class="card-header">
+                    <h2 class="title">{{ plan.name }}</h2>
+                    <p>${{ plan.price }}/月</p>
+                </div>
+                <ul class="meta">
+                    <li><span>裝機費</span>{{ plan.setup }}</li>
+                    <li><span>保證金</span>{{ plan.deposit }}</li>
+                    <li><span>繳　別</span>{{ plan.payCycle }}</li>
+                    <li><span>合　約</span>{{ plan.contract }}</li>
+                </ul>
+                <div class="note">{{ plan.note }}</div>
+            </article>
+            <button class="btn" :disabled="!selectedPlan" @click="submit">
+                <span v-if="selectedPlan">預約安裝</span>
+                <span v-if="!selectedPlan">請先選擇方案</span>
+            </button>
+        </div>
+    </div>
+</template>
+
 <style scoped>
-.main {
+.cardOut {
+    padding: 1rem;
+    width: 970px;
+    margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 1.5rem;
     background: #e5e5e5c9;
-    margin-top: 50px;
+    margin-top: 10px;
 }
 
 .card {
